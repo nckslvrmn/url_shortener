@@ -1,6 +1,6 @@
 ---
 bind_address: '127.0.0.1'
-daemonize: false
-port: 8080
+daemonize: true
+port: 8084
 rack_session_secret: 'nUBYPRQQI1PEyy0H8w3fNEz3TuTczwsg'
 site_name: 'http://localhost:8080'
