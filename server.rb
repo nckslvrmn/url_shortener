@@ -43,6 +43,17 @@ class URLShortnerServer < Sinatra::Base
     redirect full_url['full_url']
   end
 
+  post '/api/store' do
+    if params['full_url'].empty?
+      status 400
+      JSON.generate('error' => 'must pass secret and passphrase')
+    else
+      short_url_id = SecureRandom.urlsafe_base64(8)
+      db.store_url(short_url_id, params['full_url'])
+      JSON.generate('short_url' => "#{config['site_name']}/#{short_url_id}")
+    end
+  end
+
   not_found do
     'This is nowhere to be found.'
   end
