@@ -1,0 +1,53 @@
+body {
+  background: #eee;
+  color: #222;
+  font-family: 'Open Sans', sans-serif;
+}
+
+header {
+  font-size: 2em;
+  margin: 100px 0 25px 0;
+  position: relative;
+  text-align: center;
+}
+
+.urlbox {
+  margin: 50px auto 25px auto;
+  position: relative;
+  width: 500px;
+}
+
+form {
+  display: inline;
+}
+
+textarea {
+  background: transparent;
+  border: solid 1px #222;
+  font-size: 0.875em;
+  height: 30px;
+  outline: none;
+  padding: 15px;
+  width: 65%;
+}
+
+input[type=submit] {
+  border: solid 1px #222;
+  cursor: pointer;
+  font-size: 0.875em;
+  width: 25%;
+  height: 62px;
+  vertical-align: top;
+  background: transparent;
+}
+
+.stored {
+  width: 500px;
+  margin: 0 auto 0 auto;
+  position: relative;
+  text-align: center;
+}
+
+#stored {
+  margin: 0px 0 10px 0;
+}

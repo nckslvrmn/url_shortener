@@ -1,0 +1,4 @@
+db/*
+Gemfile.lock
+log/*
+puma.pid
