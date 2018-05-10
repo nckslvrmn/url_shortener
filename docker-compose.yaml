@@ -1,5 +1,5 @@
-secrets:
-  image: secrets:latest
+url_shortner:
+  image: url_shortner:latest
   ports:
     - "8084:8084"
   environment:
