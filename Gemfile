@@ -1,7 +1,7 @@
-source 'https://rubygems.org'
+source 'https://rubygems.org/'
 
-ruby '2.5.0'
+ruby '2.5.1'
 
+gem 'aws-sdk-dynamodb'
 gem 'puma'
 gem 'sinatra'
-gem 'sqlite3'

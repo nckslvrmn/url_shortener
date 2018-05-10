@@ -1,5 +1,4 @@
-db/*
-Gemfile.lock
-log/*
 puma.pid
 config.yaml
+ssl/*
+!*/.keep

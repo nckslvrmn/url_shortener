@@ -9,11 +9,8 @@ require './lib/db'
 # sinatra server for secrets
 class URLShortnerServer < Sinatra::Base
   configure do
-    log_dir = './log'
-    Dir.mkdir(log_dir) unless Dir.exist?(log_dir)
-    file = File.new("#{log_dir}/#{environment}.log", 'a+')
-    file.sync = true
-    use Puma::CommonLogger, file
+    enable :logging
+    $stdout.sync = true
   end
 
   db = URLDB.new
@@ -32,7 +29,8 @@ class URLShortnerServer < Sinatra::Base
     else
       short_url_id = SecureRandom.urlsafe_base64(8)
       db.store_url(short_url_id, params['full_url'])
-      erb :stored, locals: { site_name: config['site_name'],
+      url_port = request.port == 80 || request.port == 443 ? nil : request.port
+      erb :stored, locals: { site_name: "#{request.scheme}://#{request.host}#{url_port ? ":#{url_port}" : nil}",
                              short_url_id: short_url_id }
     end
   end
@@ -41,17 +39,6 @@ class URLShortnerServer < Sinatra::Base
     full_url = db.get_url(params['short_url_id'])
     redirect '/' if full_url.nil? || full_url['full_url'].empty?
     redirect full_url['full_url']
-  end
-
-  post '/api/store' do
-    if params['full_url'].empty?
-      status 400
-      JSON.generate('error' => 'must pass secret and passphrase')
-    else
-      short_url_id = SecureRandom.urlsafe_base64(8)
-      db.store_url(short_url_id, params['full_url'])
-      JSON.generate('short_url' => "#{config['site_name']}/#{short_url_id}")
-    end
   end
 
   not_found do

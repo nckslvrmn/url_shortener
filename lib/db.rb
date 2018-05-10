@@ -1,36 +1,25 @@
-require 'sqlite3'
+require 'aws-sdk-dynamodb'
+require 'json'
 
-# controls sqlite db for secret server
+# methods for accessing url records from db 
 class URLDB
   def initialize
-    db_dir = './db'
-    db_file = "#{db_dir}/url.db"
-    Dir.mkdir(db_dir) unless File.directory?(db_dir)
-    @db = SQLite3::Database.new(db_file) unless File.exist?(db_file)
-    @db = SQLite3::Database.open(db_file)
-    @db.results_as_hash = true
-    @db.execute <<-SQL
-    create table if not exists urls (
-      short_url_id text,
-      created_at text,
-      full_url text
-    );
-    SQL
+    @db = Aws::DynamoDB::Client.new(region: 'us-east-1', profile: 'personal')
   end
 
   def store_url(short_url_id, full_url)
-    @db.execute(
-      'INSERT INTO URLS (short_url_id, created_at, full_url) VALUES (?, ?, ?)',
-      [short_url_id,
-       DateTime.now.to_s,
-       full_url]
-    )
+    item = {
+      short_url_id: short_url_id,
+      data: {
+        full_url: full_url, 
+        created_at: Time.now.to_i
+      }.to_json
+    }
+    @db.put_item(table_name: 'short_urls', item: item)
   end
 
   def get_url(short_url_id)
-    url = @db.execute <<-SQL
-    select * from urls where short_url_id == "#{short_url_id}";
-    SQL
-    url[0]
+    url = @db.get_item(table_name: 'short_urls', key: { 'short_url_id' => short_url_id })
+    JSON.parse(url.item['data'])
   end
 end
