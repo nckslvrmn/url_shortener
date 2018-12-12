@@ -1,5 +1,5 @@
-url_shortner:
-  image: url_shortner:latest
+url_shortener:
+  image: url_shortener:latest
   ports:
     - "8084:8084"
   environment:

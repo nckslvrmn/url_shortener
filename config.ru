@@ -1,2 +1,2 @@
 require './server'
-run URLShortnerServer
+run URLShortenerServer

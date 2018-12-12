@@ -12,7 +12,7 @@ class URLDB
 end
 
 # sinatra server for secrets
-class URLShortnerServer < Sinatra::Base
+class URLShortenerServer < Sinatra::Base
   configure do
     enable :logging
     $stdout.sync = true
