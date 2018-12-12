@@ -42,9 +42,9 @@ class URLShortnerServer < Sinatra::Base
   end
 
   get '/:short_url_id' do
-    full_url = URLDB.find(short_url_id: params['short_url_id'])
-    redirect '/' if full_url.nil? || full_url['full_url'].empty?
-    redirect full_url['full_url']
+    record = URLDB.find(short_url_id: params['short_url_id'])
+    redirect '/' if record.nil? || record.full_url.empty?
+    redirect record.full_url
   end
 
   not_found do
