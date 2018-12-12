@@ -1,4 +1,2 @@
 puma.pid
-config.yaml
-ssl/*
-!*/.keep
+docker-compose.yaml

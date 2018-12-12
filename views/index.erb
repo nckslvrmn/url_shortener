@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-<head>
-  <meta charset="utf-8">
-  <meta name="referrer" content="no-referrer">
-  <link rel="shortcut icon" type="image/png" href="/img/favicon.png">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>URL Shortner</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="/site.css">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script type="text/javascript">
   $(document).ready(function() {
       $('form').submit(function(e) {
@@ -29,8 +18,6 @@
       });
   });
   </script>
-</head>
-<body>
   <header>Enter long URL to shorten below.</header>
   <div class="urlbox">
     <form action="/store" data-remote="POST" data-success-target=".stored">
@@ -39,5 +26,3 @@
     </form>
   </div>
   <div class="stored"></div>
-</body>
-</html>
