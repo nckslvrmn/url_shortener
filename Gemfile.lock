@@ -1,38 +1,39 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    aws-partitions (1.85.0)
-    aws-sdk-core (3.20.2)
+    aws-eventstream (1.0.1)
+    aws-partitions (1.131.0)
+    aws-record (2.2.0)
+      aws-sdk-dynamodb (~> 1.18)
+    aws-sdk-core (3.44.2)
+      aws-eventstream (~> 1.0)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-dynamodb (1.6.0)
-      aws-sdk-core (~> 3)
+    aws-sdk-dynamodb (1.19.0)
+      aws-sdk-core (~> 3, >= 3.39.0)
       aws-sigv4 (~> 1.0)
-    aws-sigv4 (1.0.2)
+    aws-sigv4 (1.0.3)
     jmespath (1.4.0)
-    mustermann (1.0.2)
-    puma (3.11.4)
-    rack (2.0.5)
-    rack-protection (2.0.1)
+    mustermann (1.0.3)
+    puma (3.12.0)
+    rack (2.0.6)
+    rack-protection (2.0.5)
       rack
-    sinatra (2.0.1)
+    sinatra (2.0.5)
       mustermann (~> 1.0)
       rack (~> 2.0)
-      rack-protection (= 2.0.1)
+      rack-protection (= 2.0.5)
       tilt (~> 2.0)
-    tilt (2.0.8)
+    tilt (2.0.9)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  aws-sdk-dynamodb
+  aws-record
   puma
   sinatra
 
-RUBY VERSION
-   ruby 2.5.1p57
-
 BUNDLED WITH
-   1.16.1
+   2.0.1
