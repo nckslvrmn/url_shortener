@@ -6,3 +6,4 @@ url_shortener:
     - AWS_REGION=us-east-1
     - BIND_ADDRESS=0.0.0.0
     - BIND_PORT=8084
+    - BIND_SOCK=/var/run/secrets.sock
