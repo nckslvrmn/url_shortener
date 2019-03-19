@@ -1,4 +1,4 @@
-FROM ruby:latest
+FROM ruby:2.6.1
 
 COPY Gemfile Gemfile
 RUN bundle install
