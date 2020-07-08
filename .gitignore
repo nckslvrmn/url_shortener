@@ -1,4 +1,3 @@
-db/*
-Gemfile.lock
-log/*
-puma.pid
+__pycache__/
+venv/
+function.zip
