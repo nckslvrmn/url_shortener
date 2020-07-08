@@ -1,10 +1,10 @@
 url_shortener
 ===
 
-# Introduction
+## Introduction
 A simple URL shortening service.
 
-# Dependencies
+## Dependencies
 - AWS dynamo DB table
 - AWS Lambda (python runtime)
 - Boto3
