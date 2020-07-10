@@ -13,18 +13,10 @@ def store(env):
     response = dynamo.put_item(
         TableName = 'URLDB',
         Item = {
-            'short_url_id': {
-                'S': short_url_id
-            },
-            'full_url': {
-                'S': env['body']['full_url']
-            },
-            'created_at': {
-                'N': str(int(time.time()))
-            },
-            'ttl': {
-                'N': str(int(time.time()) + (86400 * 30))
-            }
+            'short_url_id': { 'S': short_url_id },
+            'full_url': { 'S': env['body']['full_url'] },
+            'created_at': { 'N': str(int(time.time())) },
+            'ttl': { 'N': str(int(time.time()) + (86400 * 30)) }
         }
     )
     return {
