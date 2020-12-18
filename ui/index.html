@@ -75,7 +75,7 @@
             .post('https://s.slvr.io/store', {full_url: this.full_url})
             .then((response) => {
               this.isError = false;
-              this.short_url = `https://s.slvr.io/r/${response.data.short_url_id}`;
+              this.short_url = `https://s.slvr.io/${response.data.short_url_id}`;
             })
             .catch(error => {
               this.isError = true;
