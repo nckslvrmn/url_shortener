@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" integrity="sha512-F7WyTLiiiPqvu2pGumDR15med0MDkUIo5VTVyyfECR5DZmCnDhti9q5VID02ItWjq6fvDfMaBaDl2J3WdL1uxA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>body,html{height:100%;background:#f5f5f5}body{display:flex;align-items:center;justify-content:center}.form-signin{max-width:750px}#results{opacity:0;transition:opacity .5s}#results.active{opacity:1}</style>
+  </head>
+
+  <body class="text-left py-3">
+  <div class="form form-signin w-100 my-0 mx-auto">
+    <div class="text-center"><i class="fas fa-compress-alt fa-5x mx-auto"></i></div>
+    <h1 class="text-center display-4 mb-4 font-weight-normal">URL Shortener</h1>
+    <p class="px-3 font-weight-normal">Enter a long URL below to shorten.</p>
+    <form onsubmit="shortenURL()" id="form" class="pt-1 px-3 form-signin">
+      <div class="mb-3 form-group">
+        <textarea type="text" name="url" class="form-control" autocomplete="off" placeholder="URL to shorten"></textarea>
+      </div>
+      <div class="form-group d-grid gap-2">
+        <input type="submit" class="btn btn-primary" value="Shorten URL">
+      </div>
+    </form>
+    <div id="results" class="mw-100 p-3"></div>
+  </div>
+
+  <script>
+    function shortenURL() {
+      event.preventDefault();
+      var form = new FormData(document.getElementById("form"));
+      var results = document.getElementById("results");
+      var url = form.get("url");
+      results.classList.remove('active');
+      fetch('https://s.slvr.io/store', {
+          method: 'post',
+          body: JSON.stringify({
+            full_url: url
+          })
+        })
+        .then((resp) => resp.json())
+        .then(function(data) {
+          var short_url = `https://s.slvr.io/${data.short_url_id}`;
+          var respHTML = `<br /><pre id="response" class="mw-50"><a href="${short_url}" target="_blank">${short_url}</a></pre>`;
+          results.innerHTML = respHTML;
+          results.classList.add('active');
+        })
+        .catch((error) => {
+          var respHTML = `<br /><div class="alert alert-danger" role="alert">There was an error storing the shortened URL</div>`;
+          results.innerHTML = respHTML;
+          results.classList.add('active');
+        });
+    }
+  </script>
+</body>
+</html>
