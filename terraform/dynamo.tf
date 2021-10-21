@@ -14,6 +14,6 @@ resource "aws_dynamodb_table" "url_shortener" {
   }
 
   tags = {
-    Name = "url_shortener"
+    Name = "URLDB"
   }
 }
