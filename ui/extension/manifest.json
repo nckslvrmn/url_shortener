@@ -1,0 +1,13 @@
+{
+  "name": "URL Shortener",
+  "description": "Shortens the current URL using https://s.slvr.io",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
