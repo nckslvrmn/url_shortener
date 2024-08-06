@@ -3,9 +3,10 @@ resource "aws_lambda_function" "url_shortener" {
   function_name = "url_shortener"
   role          = aws_iam_role.url_shortener.arn
   handler       = "lambda.handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   memory_size   = 2048
   timeout       = 5
+  layers        = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:77"]
 
   lifecycle {
     ignore_changes = [filename]
