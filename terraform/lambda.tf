@@ -21,11 +21,7 @@ resource "aws_lambda_function" "url_shortener" {
   runtime          = "python3.13"
   memory_size      = 2048
   timeout          = 5
-  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-x86_64:18"]
+  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-arm64:20"]
   architectures    = ["arm64"]
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-
-  lifecycle {
-    ignore_changes = [filename]
-  }
 }
