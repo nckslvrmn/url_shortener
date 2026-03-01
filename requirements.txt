@@ -1,2 +1,2 @@
-aws-lambda-powertools==3.17.0
-boto3==1.39.6
+aws-lambda-powertools[validation]==3.24.0
+boto3==1.42.59
