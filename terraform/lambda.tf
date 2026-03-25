@@ -18,10 +18,10 @@ resource "aws_lambda_function" "url_shortener" {
   function_name    = "url_shortener"
   role             = aws_iam_role.url_shortener.arn
   handler          = "lambda.handler"
-  runtime          = "python3.13"
+  runtime          = "python3.14"
   memory_size      = 2048
   timeout          = 5
-  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-arm64:20"]
+  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python314-arm64:27"]
   architectures    = ["arm64"]
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 }
