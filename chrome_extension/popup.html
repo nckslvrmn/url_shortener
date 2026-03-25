@@ -165,6 +165,114 @@
     .hidden {
       display: none;
     }
+
+    details {
+      margin-top: 0.75rem;
+    }
+
+    summary {
+      font-size: 0.75rem;
+      color: var(--comment);
+      cursor: pointer;
+      user-select: none;
+      padding: 0.25rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary .chevron {
+      font-size: 0.6rem;
+      transition: rotate 0.15s ease;
+      display: inline-block;
+    }
+
+    details[open] summary .chevron {
+      rotate: 90deg;
+    }
+
+    .advanced-content {
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--current-line);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .adv-label {
+      font-size: 0.7rem;
+      color: var(--comment);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .form-check input[type="checkbox"] {
+      accent-color: var(--purple);
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .form-check label {
+      font-size: 0.8rem;
+      color: var(--foreground);
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      margin: 0;
+    }
+
+    .custom-id-group {
+      display: flex;
+      align-items: stretch;
+      background: var(--current-line);
+      border-radius: 0.375rem;
+      overflow: hidden;
+    }
+
+    .custom-id-prefix {
+      display: flex;
+      align-items: center;
+      padding: 0.45rem 0.5rem;
+      color: var(--comment);
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      border-right: 1px solid var(--background);
+      user-select: none;
+    }
+
+    .custom-id-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.45rem 0.5rem;
+      color: var(--foreground);
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.8rem;
+      outline: none;
+      min-width: 0;
+    }
+
+    .custom-id-input::placeholder {
+      color: var(--comment);
+    }
   </style>
 </head>
 
@@ -179,7 +287,27 @@
   <label>Current page</label>
   <div id="current-url" class="url-box"></div>
 
-  <button id="shorten-btn" class="btn btn-primary">Shorten URL</button>
+  <details id="advanced-details">
+    <summary><span class="chevron">&#9654;</span> Advanced options</summary>
+    <div class="advanced-content">
+      <div>
+        <div class="adv-label">Expiry</div>
+        <div class="form-check">
+          <input type="checkbox" id="permanent-check">
+          <label for="permanent-check">Permanent link (never expires)</label>
+        </div>
+      </div>
+      <div>
+        <div class="adv-label">Custom short name</div>
+        <div class="custom-id-group">
+          <span class="custom-id-prefix">s.slvr.io/</span>
+          <input type="text" id="custom-id-input" class="custom-id-input" placeholder="my-link" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <button id="shorten-btn" class="btn btn-primary" style="margin-top: 0.75rem;">Shorten URL</button>
 
   <div id="result" class="result hidden">
     <label>Short URL</label>

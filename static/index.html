@@ -410,6 +410,110 @@
     .gap-2 {
       gap: 0.5rem;
     }
+
+    .advanced-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--comment);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .advanced-toggle:hover {
+      color: var(--foreground);
+    }
+
+    .advanced-toggle .toggle-icon {
+      font-size: 0.65rem;
+      transition: rotate 0.2s ease;
+    }
+
+    .advanced-toggle[aria-expanded="true"] .toggle-icon {
+      rotate: 90deg;
+    }
+
+    .advanced-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--comment);
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    .advanced-label {
+      font-size: 0.75rem;
+      color: var(--comment);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-check-input {
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--purple);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .form-check-label {
+      font-size: 0.875rem;
+      color: var(--foreground);
+      cursor: pointer;
+    }
+
+    .custom-id-group {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--comment);
+      border-radius: 0.375rem;
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .custom-id-group:focus-within {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px oklch(from var(--purple) l c h / 0.2);
+    }
+
+    .custom-id-prefix {
+      display: flex;
+      align-items: center;
+      padding: 0.625rem 0.75rem;
+      background: oklch(from var(--background) l c h / 0.6);
+      color: var(--comment);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      border-right: 1px solid var(--comment);
+      user-select: none;
+    }
+
+    .custom-id-input {
+      flex: 1;
+      background: var(--background);
+      border: none;
+      padding: 0.625rem 0.75rem;
+      color: var(--foreground);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.875rem;
+      outline: none;
+      min-width: 0;
+    }
+
+    .custom-id-input::placeholder {
+      color: var(--comment);
+    }
   </style>
 </head>
 
@@ -441,6 +545,29 @@
       </div>
       <div class="form-group">
         <textarea name="url" class="form-control" autocomplete="off" placeholder="URL to shorten" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <a class="advanced-toggle" data-bs-toggle="collapse" href="#advancedOptions" role="button" aria-expanded="false" aria-controls="advancedOptions">
+          <i class="fas fa-chevron-right toggle-icon"></i> Advanced options
+        </a>
+        <div class="collapse" id="advancedOptions">
+          <div class="advanced-section">
+            <div>
+              <div class="advanced-label">Expiry</div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="permanent" id="permanent-check">
+                <label class="form-check-label" for="permanent-check">Permanent link (never expires)</label>
+              </div>
+            </div>
+            <div>
+              <div class="advanced-label">Custom short name</div>
+              <div class="custom-id-group">
+                <span class="custom-id-prefix">s.slvr.io/</span>
+                <input type="text" name="custom_id" class="custom-id-input" placeholder="my-link" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="form-group d-grid gap-2">
         <button type="submit" class="btn btn-primary w-100" id="submit-btn">
@@ -542,16 +669,26 @@
       spinner.classList.remove('d-none');
       results.classList.remove('active');
 
+      const permanent = form.get('permanent') === 'on';
+      const customId = (form.get('custom_id') || '').trim() || null;
+
       const infoToast = toast.open({ type: 'info', message: 'Creating short URL...' });
 
       try {
+        const payload = { full_url: url };
+        if (permanent) payload.permanent = true;
+        if (customId) payload.custom_id = customId;
+
         const resp = await fetch('https://s.slvr.io/store', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_url: url })
+          body: JSON.stringify(payload)
         });
 
-        if (!resp.ok) throw new Error('Server error');
+        if (!resp.ok) {
+          const errData = await resp.json().catch(() => null);
+          throw new Error(errData?.detail || 'Server error');
+        }
 
         const data = await resp.json();
         const shortUrl = `https://s.slvr.io/${data.short_url_id}`;
@@ -583,7 +720,9 @@
       } catch (error) {
         const alertEl = document.createElement('div');
         alertEl.className = 'alert alert-danger mb-0';
-        alertEl.textContent = 'There was an error creating the short URL. Please try again.';
+        alertEl.textContent = error.message && error.message !== 'Server error'
+          ? error.message
+          : 'There was an error creating the short URL. Please try again.';
 
         responseBody.replaceChildren(alertEl);
         results.classList.add('active');
