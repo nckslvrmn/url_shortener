@@ -1,132 +1,75 @@
 # URL Shortener
 
-Serverless URL shortening service built on AWS Lambda, API Gateway, DynamoDB, and Terraform. Short URLs expire automatically after 30 days.
+A little serverless URL shortener I run on AWS. You give it a long URL, it hands back a short ID, and `https://s.yourdomain.com/{id}` redirects you to the original. Links expire after 30 days.
 
 [![License](https://img.shields.io/github/license/nckslvrmn/url_shortener)](LICENSE)
-[![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=aws-lambda)](https://aws.amazon.com/lambda/)
 [![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://www.python.org/)
 [![Terraform](https://img.shields.io/badge/Terraform-IaC-purple?logo=terraform)](https://www.terraform.io/)
 
-## Architecture
+## How it works
+
+The fun part: the hot paths don't touch Lambda at all.
 
 ```
-Browser → Route53 (A alias) → API Gateway HTTP API → Lambda (Python 3.13, arm64) → DynamoDB
+GET  /             API Gateway -> S3            (static frontend)
+GET  /{short_id}   API Gateway -> DynamoDB      (302 redirect, VTL mapped)
+POST /store        API Gateway -> Lambda        (generate id + write)
 ```
 
-- **API Gateway HTTP API v2** — routes `GET /`, `POST /store`, `GET /{short_url_id}`
-- **Lambda** — Python 3.13, arm64, 2048 MB, 5s timeout; serves the frontend HTML directly from the deployment package
-- **DynamoDB** — `URLDB` table, on-demand billing, TTL enabled (30-day expiry)
-- **Route53** — A alias record pointing to the API Gateway custom domain
-- **AWS Lambda Powertools** — delivered via Lambda Layer (not bundled in the zip)
+Redirects go straight from API Gateway to DynamoDB via a VTL mapping template, so there's no cold start to wait on. That matters more than you'd think. A cold Lambda can take a couple seconds to respond, which is long enough for link unfurlers (Discord, Slack, etc.) to time out and skip the preview card. Going Lambda-less on the redirect path fixes that and keeps it fast and cheap.
 
-## Deployment
+Lambda only runs when you create a link, which is the one path that actually needs logic (random id + conditional write). Everything is REST API v1 because the direct DynamoDB and S3 integrations need VTL, and VTL is a v1-only feature.
 
-### Prerequisites
+## Stack
 
-- AWS account with appropriate permissions
-- Terraform v1.0+
-- AWS CLI configured
-- A registered domain with a Route53 hosted zone
-- ACM certificate for the domain (us-east-1)
+- **API Gateway** (REST v1) with direct DynamoDB and S3 integrations
+- **Lambda** (Python 3.13, arm64) for `POST /store`, with Powertools via a layer
+- **DynamoDB** (`URLDB`, on-demand, 30-day TTL)
+- **S3** for the static frontend
+- **Route53** alias to the custom domain
 
-### Steps
+## Deploy
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/nckslvrmn/url_shortener.git
-   cd url_shortener
-   ```
+Everything is Terraform under `terraform/`, and it's set up to be consumed as a module. `terraform apply` is the whole deploy: it zips `lambda.py`, pushes the function code, and uploads `static/index.html` to S3. No separate build step.
 
-2. **Configure Terraform variables**
-   ```bash
-   cd terraform
-   cat > terraform.tfvars << EOF
-   hosted_zone_id = "YOUR_ROUTE53_ZONE_ID"
-   domain_name    = "s.yourdomain.com"
-   acm_arn        = "arn:aws:acm:us-east-1:..."
-   EOF
-   ```
+```hcl
+module "url_shortener" {
+  source = "github.com/nckslvrmn/url_shortener//terraform"
 
-3. **Deploy**
-   ```bash
-   terraform init
-   terraform apply
-   ```
+  hosted_zone_id = "YOUR_ROUTE53_ZONE_ID"
+  domain_name    = "s.yourdomain.com"
+  acm_arn        = "arn:aws:acm:..." # regional cert in the API's region
+}
+```
 
-   Terraform zips `lambda.py` and `static/index.html` automatically via the `archive_file` data source — no manual packaging needed.
+Or just run it directly:
+
+```bash
+cd terraform
+terraform init
+terraform apply
+```
 
 ## API
 
-### `POST /store`
+**Create a link:**
 
-Shorten a URL.
-
-**Request**
 ```bash
 curl -X POST https://s.yourdomain.com/store \
   -H "Content-Type: application/json" \
   -d '{"full_url": "https://example.com/some/long/path"}'
+# { "short_url_id": "AbCd3f" }
 ```
 
-**Response**
-```json
-{ "short_url_id": "AbCd3f" }
-```
+`full_url` has to be a valid URL or you get a `422`.
 
-The `full_url` field must be a valid URL — invalid input returns `422`.
+**Use it:** `GET /{short_url_id}` redirects (`302`), or `404` if the id is unknown or expired.
 
-### `GET /{short_url_id}`
+## Notes
 
-Redirects to the original URL (`302`). Returns `404` if the ID does not exist or has expired.
-
-## Infrastructure
-
-All infrastructure lives in `terraform/`:
-
-| File | Purpose |
-|------|---------|
-| `apig_http.tf` | API Gateway HTTP API, routes, custom domain, stage |
-| `lambda.tf` | Lambda function, deployment package, Powertools layer |
-| `dynamo.tf` | DynamoDB table with TTL |
-| `route53.tf` | A alias record for the custom domain |
-| `iam.tf` | Lambda execution role, DynamoDB least-privilege policy |
-| `variables.tf` | `hosted_zone_id`, `domain_name`, `acm_arn` |
-
-### Terraform Variables
-
-| Variable | Description |
-|----------|-------------|
-| `hosted_zone_id` | Route53 hosted zone ID |
-| `domain_name` | Custom domain (e.g. `s.yourdomain.com`) |
-| `acm_arn` | ACM certificate ARN (must be in `us-east-1`) |
-
-## DynamoDB Schema
-
-Table: `URLDB`
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `short_url_id` | String (PK) | 6-character random alphanumeric ID |
-| `full_url` | String | Original URL |
-| `created_at` | Number | Unix timestamp of creation |
-| `ttl` | Number | Unix timestamp of expiry (30 days out) |
-
-## Local Development
-
-Python dependencies are only needed for local development — Lambda uses the Powertools layer at runtime.
-
-```bash
-pip install -r requirements.txt
-```
-
-## Monitoring
-
-Lambda logs are structured JSON via AWS Lambda Powertools Logger and are sent to CloudWatch Logs automatically.
-
-```bash
-aws logs tail /aws/lambda/url_shortener --follow
-```
+- `requirements.txt` is just for local dev. At runtime Powertools comes from the layer and boto3 comes from the Lambda runtime.
+- Logs are structured JSON in CloudWatch: `aws logs tail /aws/lambda/url_shortener --follow`
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

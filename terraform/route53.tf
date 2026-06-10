@@ -4,8 +4,8 @@ resource "aws_route53_record" "secret" {
   zone_id = var.hosted_zone_id
 
   alias {
-    name                   = aws_apigatewayv2_domain_name.url_shortener.domain_name_configuration.0.target_domain_name
-    zone_id                = aws_apigatewayv2_domain_name.url_shortener.domain_name_configuration.0.hosted_zone_id
+    name                   = aws_api_gateway_domain_name.url_shortener.regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.url_shortener.regional_zone_id
     evaluate_target_health = false
   }
 }

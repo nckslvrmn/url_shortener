@@ -3,13 +3,8 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda_function.zip"
 
   source {
-    content  = file("${path.module}/../lambda.py")
+    content  = file("${path.module}/lambda.py")
     filename = "lambda.py"
-  }
-
-  source {
-    content  = file("${path.module}/../static/index.html")
-    filename = "static/index.html"
   }
 }
 
@@ -21,7 +16,7 @@ resource "aws_lambda_function" "url_shortener" {
   runtime          = "python3.13"
   memory_size      = 2048
   timeout          = 5
-  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-arm64:20"]
+  layers           = ["arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV3-python313-arm64:33"]
   architectures    = ["arm64"]
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 }
