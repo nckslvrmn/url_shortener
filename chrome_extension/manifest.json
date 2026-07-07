@@ -1,7 +1,7 @@
 {
   "name": "URL Shortener",
   "description": "Shorten the current page URL using s.slvr.io",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "permissions": ["activeTab"],
   "host_permissions": ["https://s.slvr.io/*"],
