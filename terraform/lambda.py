@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 
 import boto3
 from botocore.exceptions import ClientError
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
@@ -29,6 +29,14 @@ class StoreRequest(BaseModel):
     full_url: HttpUrl
     permanent: bool = False
     custom_id: Optional[Annotated[str, Field(pattern=r"^[A-Za-z0-9_-]{1,64}$")]] = None
+
+    @field_validator("full_url", mode="before")
+    @classmethod
+    def default_scheme(cls, v):
+        # Accept bare domains (e.g. "google.com") by assuming https://
+        if isinstance(v, str) and "://" not in v:
+            return f"https://{v}"
+        return v
 
 
 @app.post("/store")

@@ -688,7 +688,8 @@
 
         if (!resp.ok) {
           const errData = await resp.json().catch(() => null);
-          throw new Error(errData?.message || errData?.detail || 'Server error');
+          const detail = typeof errData?.detail === 'string' ? errData.detail : null;
+          throw new Error(errData?.message || detail || 'Server error');
         }
 
         const data = await resp.json();

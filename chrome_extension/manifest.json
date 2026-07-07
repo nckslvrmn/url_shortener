@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "manifest_version": 3,
   "permissions": ["activeTab"],
+  "host_permissions": ["https://s.slvr.io/*"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Shorten this URL"

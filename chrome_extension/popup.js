@@ -33,7 +33,8 @@ async function shortenUrl(url, { permanent = false, customId = null } = {}) {
 
     if (!response.ok) {
       const errData = await response.json().catch(() => null);
-      throw new Error(errData?.message || errData?.detail || `HTTP ${response.status}`);
+      const detail = typeof errData?.detail === 'string' ? errData.detail : null;
+      throw new Error(errData?.message || detail || `HTTP ${response.status}`);
     }
 
     const data = await response.json();
